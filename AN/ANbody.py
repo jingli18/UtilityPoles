@@ -1,9 +1,10 @@
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 import os
-import ANI
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+#Basic Data Configurations
 mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 learning_rate = 0.001
 training_iters = 200000
@@ -12,9 +13,7 @@ n_classes = 10
 batch_size = 128
 _dropout1 = 0.8
 _dropout2 = 0.6
-
 n_input = 784
-n_classes = 10
 
 keep_prob = tf.placeholder('float')
 x = tf.placeholder('float', [None, 784])
@@ -92,37 +91,29 @@ def convolutional_neural_network(x):
 
 
 
-def train_neural_network(x):
-    pred = convolutional_neural_network(x)
 
-    # 定义损失函数和学习步骤
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
-    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+pred = convolutional_neural_network(x)
+prediction = tf.nn.softmax(pred)
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
+opt = tf.train.AdamOptimizer(0.001).minimize(cost)
 
-    # 测试网络
-    correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+def compute_accuracy(v_xs, v_ys):
+    global prediction
+    y_pre = sess.run(prediction, feed_dict={x: v_xs, keep_prob: 1})
+    correct_prediction = tf.equal(tf.argmax(y_pre, 1), tf.argmax(v_ys, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    result = sess.run(accuracy, feed_dict={x: v_xs, y: v_ys, keep_prob: 1})
+    return result
 
-    init = tf.initialize_all_variables()
-    with tf.Session() as sess:
-        sess.run(init)
-        step = 1
-        # Keep training until reach max iterations
-        while step * batch_size < training_iters:
-            batch_xs, batch_ys = mnist.train.next_batch(batch_size)
-            # 获取批数据
-            sess.run(optimizer, feed_dict={x: batch_xs, y: batch_ys, keep_prob: _dropout1})
-            if step % display_step == 0:
-                # 计算精度
-                acc = sess.run(accuracy, feed_dict={x: batch_xs, y: batch_ys, keep_prob: 1.})
-                # 计算损失值
-                loss = sess.run(cost, feed_dict={x: batch_xs, y: batch_ys, keep_prob: 1.})
-                print("Iter " + str(step * batch_size) + ", Minibatch Loss= " + "{:.6f}".format(
-                    loss) + ", Training Accuracy= " + "{:.5f}".format(acc))
-            step += 1
-        print("Optimization Finished!")
-        print("Testing Accuracy:", sess.run(accuracy,
-                feed_dict={x: mnist.test.images[:256], y: mnist.test.labels[:256], keep_prob: 1.})
+sess = tf.Session()
+init = tf.global_variables_initializer()
+sess.run(init)
 
 
-train_neural_network(x)
+
+for i in range(1000):
+    batch_xs, batch_ys = mnist.train.next_batch(100)
+    sess.run(opt, feed_dict={x: batch_xs, y: batch_ys, keep_prob: 0.5})
+    if i % 50 == 0:
+        print(compute_accuracy(
+            mnist.test.images[:1000], mnist.test.labels[:1000]))
