@@ -38,7 +38,7 @@ def convolutional_neural_network(x):
         'W_conv4': tf.Variable(tf.random_normal([3, 3, 384, 128])),
         'W_conv5': tf.Variable(tf.random_normal([3, 3, 128, 256])),
 
-        'W_fc1': tf.Variable(tf.random_normal([4*4*384, 4096])),
+        'W_fc1': tf.Variable(tf.random_normal([4*4*192, 4096])),
         'W_fc2': tf.Variable(tf.random_normal([4096, 4096])),
         'W_fc3': tf.Variable(tf.random_normal([4096, 1000])),
         'out': tf.Variable(tf.random_normal([1000, n_classes]))}
@@ -64,14 +64,14 @@ def convolutional_neural_network(x):
         conv1 = tf.nn.dropout(conv1, _dropout1)
     with tf.name_scope('Conv2'):
         conv2 = conv2d(conv1, weights['W_conv2'], biases['b_conv2'])
-        conv2 = maxpool2d(conv2, k=2)
+        conv2 = maxpool2d(conv2, k=4)
         conv2 = lrn(conv2)
         conv2 = tf.nn.dropout(conv2, _dropout2)
-    with tf.name_scope('Conv3'):
-        conv3 = conv2d(conv2, weights['W_conv3'], biases['b_conv3'])
-        conv3 = maxpool2d(conv3, k=2)
-        conv3 = lrn(conv3)
-        conv3 = tf.nn.dropout(conv3, _dropout2)
+    # with tf.name_scope('Conv3'):
+    #     conv3 = conv2d(conv2, weights['W_conv3'], biases['b_conv3'])
+    #     conv3 = maxpool2d(conv3, k=2)
+    #     conv3 = lrn(conv3)
+    #     conv3 = tf.nn.dropout(conv3, _dropout2)
 
     # with tf.name_scope('Conv4'):
     #     conv4 = conv2d(conv3, weights['W_conv4'], biases['b_conv4'])
@@ -82,7 +82,7 @@ def convolutional_neural_network(x):
 
     #FCL
     with tf.name_scope('FullConnect1'):
-        fc1 = tf.reshape(conv3,[-1, weights['W_fc1'].get_shape().as_list()[0]])
+        fc1 = tf.reshape(conv2,[-1, weights['W_fc1'].get_shape().as_list()[0]])
         fc1 = tf.nn.relu(tf.matmul(fc1, weights['W_fc1'])+biases['b_fc1'])
 
     with tf.name_scope('FullConnect2'):
