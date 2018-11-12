@@ -1,4 +1,5 @@
 import time
+import os
 from input_data import *
 from model import *
 import numpy as np
