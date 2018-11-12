@@ -19,20 +19,20 @@ def get_all_files(file_path, is_random=True):
     dog_count = 0
     for item in os.listdir(file_path):
         item_path = file_path + '\\' + item
-        item_label = item.split('.')[0]  # cat.0.jpeg
+        item_label = item.split('.')[0]  # pole.0.jpeg
 
         if os.path.isfile(item_path):
             image_list.append(item_path)
         else:
             raise ValueError('There are unvalid documents in train document.')
         #add labels
-        if item_label == 'cat':
+        if item_label == 'pole':
             label_list.append(0)
-            cat_count += 1
+            pole_count += 1
         else:
             label_list.append(1)
-            dog_count += 1
-    print('There are %dcats,%d dogs in training set.' % (cat_count, dog_count))
+            other_count += 1
+    print('There are %dcats,%d dogs in training set.' % (pole_count, other_count))
 
     image_list = np.asarray(image_list)
     label_list = np.asarray(label_list)
