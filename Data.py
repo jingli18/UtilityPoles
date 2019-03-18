@@ -63,7 +63,7 @@ def get_batch(train_list, image_size, batch_size, capacity, is_random=True):
     image_train = tf.read_file(intput_queue[0])
     image_train = tf.image.decode_jpeg(image_train, channels=3)  # jpeg pic
     image_train = tf.image.resize_images(image_train, [image_size, image_size])
-    image_train = tf.cast(image_train, tf.float32) / 255.  # transform pic
+    image_train = tf.cast(image_train, tf.float32)   # transform pic
 
     # pic tags
     label_train = intput_queue[1]
